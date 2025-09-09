@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Food Delivery Dashboard</title>
+    <title>Food Items Dashboard</title>
     <style>
         body {
             margin: 0;
             font-family: Arial, sans-serif;
             display: flex;
             height: 100vh;
+            background-color: #ecf0f1;
         }
         .sidebar {
             width: 220px;
@@ -35,7 +36,6 @@
         .main-content {
             flex: 1;
             padding: 20px;
-            background-color: #ecf0f1;
             overflow-y: auto;
         }
         header {
@@ -56,12 +56,13 @@
             display: flex;
             gap: 20px;
             margin: 20px 0;
+            flex-wrap: wrap;
         }
         .card {
             background-color: white;
             padding: 20px;
             border-radius: 8px;
-            flex: 1;
+            flex: 1 1 200px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .card h3 {
@@ -72,15 +73,35 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .food-list {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .food-list table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .food-list th, .food-list td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .food-list th {
+            background-color: #f4f4f4;
         }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <h2>Food Delivery</h2>
+        <h2>Food Dashboard</h2>
         <ul>
             <li class="active">Dashboard</li>
-            <li>Orders</li>
+            <li>Food Items</li>
             <li>Collections</li>
             <li>Settings</li>
         </ul>
@@ -94,59 +115,114 @@
 
         <div class="cards">
             <div class="card">
-                <h3>Total Orders</h3>
-                <p id="total-orders">1500</p>
+                <h3>Total Items Sold</h3>
+                <p id="total-items">320</p>
             </div>
             <div class="card">
                 <h3>Total Revenue</h3>
-                <p id="total-revenue">$45,000</p>
+                <p id="total-revenue">$12,500</p>
             </div>
             <div class="card">
                 <h3>Today's Collection</h3>
-                <p id="todays-collection">$2,500</p>
+                <p id="todays-collection">$850</p>
             </div>
         </div>
 
         <div class="chart-container">
-            <h3>Collections Over Time</h3>
-            <canvas id="collectionsChart"></canvas>
+            <h3>Collections by Food Items</h3>
+            <canvas id="foodChart"></canvas>
+        </div>
+
+        <div class="food-list">
+            <h3>Food Items and Rates</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Food Item</th>
+                        <th>Rate ($)</th>
+                    </tr>
+                </thead>
+                <tbody id="foodTableBody">
+                    <!-- Food items will be inserted here -->
+                </tbody>
+            </table>
         </div>
     </div>
 
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const ctx = document.getElementById('collectionsChart').getContext('2d');
-        const collectionsChart = new Chart(ctx, {
-            type: 'line',
+        // Food data with name and rate
+        const foodItems = [
+            { name: 'Pizza', rate: 12 },
+            { name: 'Evening Snacks', rate: 8 },
+            { name: 'Burgers', rate: 10 },
+            { name: 'Pasta', rate: 11 },
+            { name: 'Desserts', rate: 7 }
+        ];
+
+        // Fill the table with food items
+        const tableBody = document.getElementById('foodTableBody');
+        foodItems.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${item.name}</td><td>$${item.rate}</td>`;
+            tableBody.appendChild(row);
+        });
+
+        // Create the chart
+        const ctx = document.getElementById('foodChart').getContext('2d');
+        const foodChart = new Chart(ctx, {
+            type: 'bar',
             data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                labels: foodItems.map(item => item.name),
                 datasets: [{
                     label: 'Collections ($)',
-                    data: [5000, 7000, 8000, 6000, 10000, 9500, 12000],
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
+                    data: [4000, 2500, 3000, 1500, 1800],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Collections ($)'
+                        }
+                    }
+                },
                 plugins: {
                     legend: {
-                        position: 'top',
+                        position: 'top'
                     },
                     title: {
                         display: true,
-                        text: 'Monthly Collections'
+                        text: 'Food Item Collections'
                     }
                 }
             }
         });
 
         // Example dynamic data update
-        document.getElementById('total-orders').textContent = "1,500";
-        document.getElementById('total-revenue').textContent = "$45,000";
-        document.getElementById('todays-collection').textContent = "$2,500";
+        document.getElementById('total-items').textContent = "320";
+        document.getElementById('total-revenue').textContent = "$12,500";
+        document.getElementById('todays-collection').textContent = "$850";
     </script>
 </body>
 </html>
+
